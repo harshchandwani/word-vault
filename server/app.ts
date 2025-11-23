@@ -7,6 +7,7 @@ import express, {
   NextFunction,
 } from "express";
 import session from "express-session";
+import cors from "cors";
 
 import { registerRoutes } from "./routes";
 
@@ -34,6 +35,16 @@ declare module 'http' {
     rawBody: unknown
   }
 }
+
+// Configure CORS
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || true, // Allow all origins in dev, or set specific origin in production
+    credentials: true, // Allow cookies/session to be sent
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 app.use(
   session({
