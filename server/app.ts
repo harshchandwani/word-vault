@@ -6,6 +6,7 @@ import express, {
   Response,
   NextFunction,
 } from "express";
+import session from "express-session";
 
 import { registerRoutes } from "./routes";
 
@@ -22,11 +23,31 @@ export function log(message: string, source = "express") {
 
 export const app = express();
 
+declare module 'express-session' {
+  interface SessionData {
+    userId?: string;
+  }
+}
+
 declare module 'http' {
   interface IncomingMessage {
     rawBody: unknown
   }
 }
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "word-archive-secret-key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    },
+  })
+);
+
 app.use(express.json({
   verify: (req, _res, buf) => {
     req.rawBody = buf;
